@@ -11,7 +11,6 @@ public class Edge {
 	public boolean incidentTo(int v) {
 		return this.v == v || this.w == v;
 	}
-	// returns true if the edge is incident to a vertex v
 
 	public int[] toArray() {
 		int[] arrayRepresentation = { v, w };
