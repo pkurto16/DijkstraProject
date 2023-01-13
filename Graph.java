@@ -12,23 +12,26 @@ public class Graph {
 
 	public boolean addEdge(Edge e) {
 		int[] edge = e.toArray();
-		
-		for(int i = 0; i<2; i++) {
+
+		for (int i = 0; i < 2; i++) {
 			LinkedList<Integer> vertexLL = getVertexLL(edge[i]);
-			if(vertexLL!=null) {
-				if(vertexLL.contains(edge[(i+1)%2])) return false;
-				vertexLL.add(edge[(i+1)%2]);
+			
+			if (vertexLL != null) {
+				if (vertexLL.contains(edge[(i + 1) % 2])) {
+					return false;
+				}
+				vertexLL.add(edge[(i + 1) % 2]);
+				
+			} else {
+				adjacencyList.add(new LinkedList<Integer>(List.of(edge[i], edge[(i + 1) % 2])));
 			}
-			else{
-				adjacencyList.add((LinkedList<Integer>) List.of(edge[i],edge[(i+1)%2]));
-			}	
 		}
 		return true;
 	}
-	
+
 	private LinkedList<Integer> getVertexLL(int vertex) {
 		for (LinkedList<Integer> vertexAdjacency : adjacencyList) {
-			if (vertexAdjacency.getFirst()==vertex) {
+			if (vertexAdjacency.getFirst() == vertex) {
 				return vertexAdjacency;
 			}
 		}
@@ -37,14 +40,16 @@ public class Graph {
 
 	public int degree(int vertex) {
 		LinkedList<Integer> vertexLL = getVertexLL(vertex);
-		return vertexLL==null ? 0 : vertexLL.size()-1;
+		return vertexLL == null ? 0 : vertexLL.size() - 1;
 	}
 
 	public int[] getAdjacencyList(int vertex) {
 		LinkedList<Integer> vertexLL = getVertexLL(vertex);
 		int[] returned = new int[vertexLL.size()];
-		vertexLL.forEach(element -> {returned[vertexLL.indexOf(element)] = element;});
-		return returned;
+		vertexLL.forEach(element -> {
+			returned[vertexLL.indexOf(element)] = element;
+		});
+		return Arrays.copyOfRange(returned, 1, returned.length);
 	}
 
 	public boolean containsEdge(Edge e) {
