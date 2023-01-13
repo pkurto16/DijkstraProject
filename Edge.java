@@ -1,26 +1,19 @@
-
 public class Edge {
-	private int v;
-	private int w;
+	private int[] edge;
 
 	public Edge(int v, int w) {
-		this.v = v;
-		this.w = w;
+		edge = (v>w) ? new int[] {v,w} : new int[] {w,v};
 	}
-
+	
 	public boolean incidentTo(int v) {
-		return this.v == v || this.w == v;
+		return edge[0] == v || edge[1] == v;
 	}
 
 	public int[] toArray() {
-		int[] arrayRepresentation = { v, w };
-		return arrayRepresentation;
+		return edge;
 	}
 
 	public boolean equals(Edge e) {
-		int[] eArray = e.toArray();
-
-		return eArray[0] == v && eArray[1] == w 
-				|| eArray[0] == w && eArray[1] == v;
+		return e.toArray()[0]==edge[0] && e.toArray()[1]==edge[1];
 	}
 }
