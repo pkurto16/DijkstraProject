@@ -2,9 +2,9 @@ public class Edge {
 	private int[] edge;
 
 	public Edge(int v, int w) {
-		edge = (v>w) ? new int[] {v,w} : new int[] {w,v};
+		edge = (w > v) ? new int[] { v, w } : new int[] { w, v }; // edge[0]<edge[1]
 	}
-	
+
 	public boolean incidentTo(int v) {
 		return edge[0] == v || edge[1] == v;
 	}
@@ -14,6 +14,6 @@ public class Edge {
 	}
 
 	public boolean equals(Edge e) {
-		return e.toArray()[0]==edge[0] && e.toArray()[1]==edge[1];
+		return e.toArray()[0] == edge[0] && e.toArray()[1] == edge[1];
 	}
 }
