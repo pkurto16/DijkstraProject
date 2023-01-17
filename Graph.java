@@ -17,8 +17,8 @@ public class Graph {
 		if (e==null || containsEdge(e) || e.toArray()[0] == e.toArray()[1]) return false;
 		int[] edge = e.toArray();
 
-		// adds new linked list element if list exists or creates a new list of the 2
-		// vertices of Edge e
+		/* adds new linked list element if list exists or 
+		creates a new list of the 2 vertices of Edge e */
 		for (int i = 0; i < 2; i++) {
 			if (adjListOf(edge[i]) != null) {
 				adjListOf(edge[i]).add(edge[(i + 1) % 2]);
