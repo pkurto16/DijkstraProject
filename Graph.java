@@ -43,6 +43,7 @@ public class Graph {
 		int[] returned = adjLL==null ? new int[0] : new int[adjLL.size()]; //null LL -> size 0 arr
 		if(adjLL==null) return returned;
 		int i = 0;
+		//here I used int i to make sure that this for loop is O(n) time
 		for(Edge e : adjLL) {
 			returned[i] = e.toArray()[1];
 			i++;
