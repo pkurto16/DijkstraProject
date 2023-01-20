@@ -2,10 +2,10 @@ import java.util.*;
 
 public class Graph {
 
-	private ArrayList<LinkedList<Integer>> adjacencyList;
+	private ArrayList<LinkedList<Edge>> adjacencyList;
 
 	public Graph(Edge[] edges) {
-		adjacencyList = new ArrayList<LinkedList<Integer>>();
+		adjacencyList = new ArrayList<LinkedList<Edge>>();
 		if (edges != null) { //checks for null Edge[]
 			for (Edge e : edges) {
 				addEdge(e);
@@ -15,39 +15,37 @@ public class Graph {
  
 	public boolean addEdge(Edge e) {
 		if (e==null || containsEdge(e) || e.toArray()[0] == e.toArray()[1]) return false;
-		int[] edge = e.toArray();
 
-		/* adds new linked list element if list exists or 
-		creates a new list of the 2 vertices of Edge e */
-		for (int i = 0; i < 2; i++) {
-			if (adjListOf(edge[i]) != null) {
-				adjListOf(edge[i]).add(edge[(i + 1) % 2]);
-			} else {
-				adjacencyList.add(new LinkedList<Integer>(List.of(edge[i], edge[(i + 1) % 2])));
-			}
+		if (adjListOf(e.toArray()[0]) != null) {
+			adjListOf(e.toArray()[0]).add(e);
+		} else {
+			adjacencyList.add(new LinkedList<Edge>(List.of(e)));
 		}
 		return true;
 	}
 
 	//finds correct LinkedList for the corresponding vertex or returns null if it doesn't exist
-	private LinkedList<Integer> adjListOf(int vertex) {
-		for (LinkedList<Integer> adjLL : adjacencyList) {
-			if (adjLL.getFirst() == vertex) return adjLL;
+	private LinkedList<Edge> adjListOf(int vertex) {
+		for (LinkedList<Edge> adjLL : adjacencyList) {
+			if (adjLL.getFirst().toArray()[0] == vertex) return adjLL;
 		}
 		return null;
 	}
 
 	//checks null edge case, returning 0, or returns the length of the linkedList of that vertex -1
 	public int degree(int vertex) {
-		return adjListOf(vertex) == null ? 0 : adjListOf(vertex).size() - 1; 
+		return adjListOf(vertex) == null ? 0 : adjListOf(vertex).size(); 
 	}
 
 	public int[] getAdjacencyList(int vertex) {
 		//worth the space to create a variable as it is used n times
-		LinkedList<Integer> adjLL = adjListOf(vertex);
-		int[] returned = adjLL==null ? new int[0] : new int[adjLL.size() - 1]; //null LL -> size 0 arr
-		for (int i = 0; i < returned.length; i++) {
-			returned[i] = adjLL.get(i + 1);
+		LinkedList<Edge> adjLL = adjListOf(vertex);
+		int[] returned = adjLL==null ? new int[0] : new int[adjLL.size()]; //null LL -> size 0 arr
+		if(adjLL==null) return returned;
+		int i = 0;
+		for(Edge e : adjLL) {
+			returned[i] = e.toArray()[1];
+			i++;
 		}
 		return returned; // returns null if array is length 0
 	}
@@ -55,6 +53,9 @@ public class Graph {
 	//checks if the list of the first vertex of e contains the second vertex of e
 	public boolean containsEdge(Edge e) {
 		if (e == null || adjListOf(e.toArray()[0]) == null) return false; //edge cases
-		return adjListOf(e.toArray()[0]).contains(e.toArray()[1]); 
+		for(Edge edge : adjListOf(e.toArray()[0])) {
+			if(edge.equals(e)) return true;
+		}
+		return false; 
 	}
 }

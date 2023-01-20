@@ -2,7 +2,7 @@ public class Edge {
 	private int[] edge;
 
 	public Edge(int v, int w) {
-		edge = (w > v) ? new int[] { v, w } : new int[] { w, v }; // edge[0]<edge[1]
+		edge = new int[] {v,w};
 	}
 
 	public boolean incidentTo(int v) {
