@@ -5,3 +5,6 @@
 /Graph.class
 /GraphTest.class
 /WeightedEdge.class
+/PriorityQueue$VAndInt.class
+/PriorityQueue.class
+/PriorityQueueTest.class

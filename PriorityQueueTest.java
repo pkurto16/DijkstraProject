@@ -2,16 +2,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-class MyHeapTest {
-	MyHeap testHeap = new MyHeap();
+class PriorityQueueTest {
+	PriorityQueue testHeap = new PriorityQueue();
 	@Test
 	void addTest() {
 		
 		for(int i = 0; i<100; i++) {
-			testHeap.insert((int)(Math.random()*1000));
+			testHeap.push("Idk",(int)(Math.random()*1000));
 		}
 		
-		int prev = testHeap.pop();
+		int prev = testHeap.poll();
 		
 		for(int i = 0; i<100; i++) {
 			
@@ -19,7 +19,7 @@ class MyHeapTest {
 				System.out.println(testHeap.visualRepresentation());
 			}
 			
-			assertTrue(prev>=testHeap.pop());
+			assertTrue(prev<=testHeap.poll());
 		}
 		assertEquals(0,testHeap.size());
 		

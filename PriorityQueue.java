@@ -1,39 +1,50 @@
 import java.util.ArrayList;
 
-public class MyHeap {
-	private int[] heapData;
-	private int size = 0;
-	private int maxSize = 10;
+public class PriorityQueue<V> {
+	private V[] heapData;
+	private int[] heapPriorities;
+	private int size = 1;
+	private int maxSize = 1;
 	
-	public MyHeap() {
-		heapData = new int[maxSize];
+	public PriorityQueue() {
+		heapData = (V[]) new Object[maxSize];
+		heapPriorities = new int[maxSize];
 	}
 	
 	public int size() {
 		return size;
 	}
 	
-	public void insert(int data) {
+	public boolean push(V data, int priority) {
 		if(arrayIsFull()) {
 			resize();
 		}
 		//size+1 as index 1 is the first element right now
-		heapData[size] = data;
-		insertHelper(data,size);
+		
+		setBothArrays(data,priority, size);
+		heapify(size);
 		size++;
+		return true;
 	}
 	
+	private void setBothArrays(V data, int priority, int index){
+		heapData[index] = data;
+		heapPriorities[index] = priority;
+	}
 	
-	private void insertHelper(int data, int index) {
+	private void heapify(int index) {
 		if(index==0) {
 			return;
 		}
 		int parentIndex = parentOf(index);
 		//'>' = maxHeap and '<' = minHeap
-		if(data>heapData[parentIndex]) {
-			heapData[index] = heapData[parentIndex];
-			heapData[parentIndex] = data;
-			insertHelper(data,parentIndex);
+		if(heapPriorities[index]<heapPriorities[index]) {
+			V data = heapData[index];
+			int priority = heapPriorities[index];
+			setBothArrays(heapData[parentIndex],heapPriorities[parentIndex],index);
+			heapPriorities[index] = heapPriorities[parentIndex];
+			setBothArrays(data,priority,parentIndex);
+			heapify(parentIndex);
 		}
 		
 	}
@@ -53,60 +64,63 @@ public class MyHeap {
 	
 	private boolean arrayIsFull() {
 		//-1 as size = 1 means that array has size 2
-		if(size>=maxSize) {
-			return true;
-		}
-		return false;
+		return size>=maxSize;
 	}
 	
 	private void resize() {
 		maxSize*=2;
-		int[] replacement = new int[maxSize];
+		maxSize++;
+		V[] replacementData = (V[]) new Object[maxSize];
+		int[] replacementPriority = new int[maxSize];
 		
 		for(int i = 0; i< size; i++) {
-			replacement[i] = heapData[i];
+			replacementData[i] = heapData[i];
+			replacementPriority[i] = heapPriorities[i];
 		}
 		
-		heapData = replacement;
+		heapData = replacementData;
+		heapPriorities = replacementPriority;
 	}
 	
-	public int pop() {
+	public int poll() {
 		if(size<=0) {
 			size=0;
 			return 0;
 		}
-		int max = heapData[0];
+		int min = heapPriorities[0];
 		heapData[0] = heapData[size-1];
 		size--;
-		pushDown(heapData[0],0);
-		return max;
+		percolate(0);
+		return min;
 	}
 	
-	private void pushDown(int data, int index) {
+	private void percolate(int index) {
 		if(index>=size-1) {
 			return;
 		}
-		if(!isLargerThanChildren(index)) {
-			if(heapData[leftOf(index)]>heapData[rightOf(index)]) {
-				heapData[index] = heapData[leftOf(index)];
-				heapData[leftOf(index)] = data;
-				pushDown(data,leftOf(index));
+		V data = heapData[index];
+		int priority = heapPriorities[index];
+		if(!isSmallerThanChildren(index)) {
+			if(heapPriorities[leftOf(index)]<heapPriorities[rightOf(index)]) {
+				setBothArrays(heapData[leftOf(index)], heapPriorities[leftOf(index)],index);
+				setBothArrays(data, priority,leftOf(index));
+				percolate(leftOf(index));
 			}
 			else {
-				heapData[index] = heapData[rightOf(index)];
-				heapData[rightOf(index)] = data;
-				pushDown(data,rightOf(index));
+				setBothArrays(heapData[rightOf(index)], heapPriorities[rightOf(index)],index);
+				setBothArrays(data, priority,rightOf(index));
+				percolate(rightOf(index));
 			}
 		}
 		
 	}
 
-	private boolean isLargerThanChildren(int index) {
+	private boolean isSmallerThanChildren(int index) {
 		
-		if(leftOf(index)<size-1&&heapData[index]<heapData[leftOf(index)]) {
+		if(leftOf(index)<size-1&&heapPriorities[index]>heapPriorities[leftOf(index)]) {
 			return false;
 		}
-		if(rightOf(index)<size-1&&heapData[index]<heapData[rightOf(index)]) {
+		if(rightOf(index)<size-1&&heapPriorities[index]>heapPriorities[rightOf(index)]) {
 			return false;
 		}
 		return true;
@@ -117,7 +131,7 @@ public class MyHeap {
 		boolean deleteComma = false;
 		
 		for(int i = 0; i<size; i++) {
-			heapString+= heapData[i]+", ";
+			heapString+= "(d: "+heapData[i]+" p: "+heapPriorities[i]+"), ";
 			deleteComma=true;
 		}
 		if(deleteComma) {
@@ -135,9 +149,7 @@ public class MyHeap {
 		if (index >= size) {
 			return returned;
 		}
-		if (heapData[index] == 0) {
-			return returned;
-		}
+		
 		returned += visualRepresentationHelper(rightOf(index));
 		returned += visualRepresentationLine(index);
 		returned += visualRepresentationHelper(leftOf(index));
@@ -157,7 +169,7 @@ public class MyHeap {
 				returned += "╔═══════════";
 			}
 		}
-		return returned + heapData[index] + "\n";
+		return returned + "("+heapData[index]+", "+heapPriorities[index]+")" + "\n";
 	}
 
 	private String parentPathSpacesString(int index) {
@@ -189,7 +201,14 @@ public class MyHeap {
 		}
 		return stringArray;
 	}
-	
+	private class VAndInt {
+		protected V data;
+		protected int priority;
+		protected VAndInt(V v, int i) {
+			this.data=v;
+			this.priority=i;
+		}
+	}
 	
 	
 }
