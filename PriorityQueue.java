@@ -4,7 +4,7 @@ public class PriorityQueue<V> {
 	private V[] heapData;
 	private int[] heapPriorities;
 	private int size = 0;
-	private int maxSize = 0;
+	private int maxSize = 1;
 
 	public PriorityQueue() {
 		heapData = (V[]) new Object[maxSize];
@@ -14,12 +14,14 @@ public class PriorityQueue<V> {
 	public int size() {
 		return size;
 	}
-
+	public V peek() {
+		return heapData[0];
+	}
 	public boolean push(V data, int priority) {
 		if (arrayIsFull()) {
 			resize();
 		}
-		// size+1 as index 1 is the first element right now
+		//set new last element in both data and priority array (at index size)
 		setBothArrays(data, priority, size);
 		heapify(size);
 		size++;
@@ -35,20 +37,24 @@ public class PriorityQueue<V> {
 		if (index == 0) {
 			return;
 		}
-		int parentIndex = parentOf(index);
-		if (heapPriorities[parentIndex] > heapPriorities[index]) {
-			swap(index, parentIndex);
-			heapify(parentIndex);
+		//keep swapping and heapifying until either you reach the top or until the parent
+		//is no longer larger priority than the element
+		if (heapPriorities[parentOf(index)] > heapPriorities[index]) {
+			swap(index, parentOf(index));
+			heapify(parentOf(index));
 		}
 	}
-	
-	//assumes entries are correct (edge cases are already accounted for)
+
+	// assumes entries are correct (edge cases are already accounted for)
 	private void swap(int index1, int index2) {
 		V data = heapData[index1];
 		int priority = heapPriorities[index1];
 		setBothArrays(heapData[index2], heapPriorities[index2], index1);
 		setBothArrays(data, priority, index2);
 	}
+
+	//these as you've seen used a bit are just functions to identify
+	//which index we are going to instead of having mysterious math throughout
 	
 	private int leftOf(int index) {
 		return (index) * 2 + 1;
@@ -68,8 +74,8 @@ public class PriorityQueue<V> {
 	}
 
 	private void resize() {
-		maxSize *= 2;
-		maxSize++;
+		//d
+		maxSize = maxSize*2+1;
 		V[] replacementData = (V[]) new Object[maxSize];
 		int[] replacementPriority = new int[maxSize];
 
@@ -94,34 +100,64 @@ public class PriorityQueue<V> {
 		return data;
 	}
 
+	/*
+	 * This percolate method is more efficient as it doesn't create an 
+	 * extra int variable, and it doesn't set a variable twice, checking over
+	 * two if statements that may be redundant, both of which are untrure of
+	 * the method I used for my final implementation, but the method that I used
+	 * to implement the PriorityQueue was the most readable method out of all 
+	 * of the ones I've tried, in my opinion.
+
 	private void percolate(int index) {
-		if (leftOf(index) > size - 1) {
-			return;
-		}
-		if(rightOf(index)>size-1 || heapPriorities[rightOf(index)]>=heapPriorities[leftOf(index)]) {
-			if(heapPriorities[leftOf(index)]<heapPriorities[index]) {
-				swap(index,leftOf(index));
+		if (leftOf(index) > size - 1) return;
+		
+		if (rightOf(index) > size - 1 || heapPriorities[rightOf(index)] >= heapPriorities[leftOf(index)]) {
+			if (heapPriorities[leftOf(index)] < heapPriorities[index]) {
+				swap(index, leftOf(index));
 				percolate(leftOf(index));
 			}
-		}
-		else if(rightOf(index)<=size-1 && heapPriorities[rightOf(index)]<heapPriorities[leftOf(index)]){
-			if(heapPriorities[rightOf(index)]<heapPriorities[index]) {
-				swap(index,rightOf(index));
-				percolate(rightOf(index));
-			}
+		} else if (heapPriorities[rightOf(index)] < heapPriorities[index]) {
+			swap(index, rightOf(index));
+			percolate(rightOf(index));
 		}
 	}
-
-	private boolean smallerThanChildren(int index) {
-		if (leftOf(index) <= size - 1 && heapPriorities[index] < heapPriorities[leftOf(index)]) {
-			return false;
+	*/
+	
+	//finds the index of the item that needs to be swapped with the element being
+	//percolated. If this element (the minimum element) is the element that is
+	//being percolated, the recursion ends
+	private void percolate(int index) {
+		int nextIndex = index;
+		//for both if statements it also makes sure that the index of the element
+		//being percolated isn't too large to have a left or right child
+		if(leftOf(index)<=size-1&&heapPriorities[leftOf(index)] <= heapPriorities[index]) {
+			nextIndex = leftOf(index);
 		}
-		if (rightOf(index) <= size - 1 && heapPriorities[index] < heapPriorities[rightOf(index)]) {
-			return false;
+		if(rightOf(index)<=size-1&&heapPriorities[rightOf(index)] <= heapPriorities[nextIndex]) {
+			nextIndex = rightOf(index);
 		}
-		return true;
+		if(nextIndex!=index) {
+			swap(index,nextIndex);
+			percolate(nextIndex);
+		}
 	}
-
+	
+	//makes a priority queue that gets array pushed into it
+	//and then a new array is made by polling all elements into
+	//that array, which is then returned
+	public static int[] heapSort(int[] nums){
+		PriorityQueue<Integer> sorter = new PriorityQueue<Integer>();
+		for(int i:nums) {
+			sorter.push(i,i);
+		}
+		int[] sortedNums = new int[nums.length];
+		for(int i = 0; i<nums.length; i++) {
+			sortedNums[i] = sorter.poll();
+		}
+		return sortedNums;
+	}
+	
+	//method adapted from AVL Tree, but edited so it works with heap
 	public String visualRepresentation() {
 		String heapString = "[";
 		boolean deleteComma = false;
@@ -150,7 +186,7 @@ public class PriorityQueue<V> {
 		returned += visualRepresentationHelper(leftOf(index));
 		return returned;
 	}
-
+	
 	private String visualRepresentationLine(int index) {
 		String returned = "";
 		// if at root, just the number is printed
@@ -196,5 +232,4 @@ public class PriorityQueue<V> {
 		}
 		return stringArray;
 	}
-
 }
